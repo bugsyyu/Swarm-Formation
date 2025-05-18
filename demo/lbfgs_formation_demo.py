@@ -1,7 +1,9 @@
 import math
+
 import time
 from typing import List
 import tkinter as tk
+
 
 class LBFGS:
     def __init__(self, func, grad, m=5, max_iter=100, tol=1e-5):
@@ -65,6 +67,7 @@ class LBFGS:
                 rho_list.append(1.0/ys)
             x, f, g = x_new, f_new, g_new
         return x, f
+
 
 
 def v_add(a: List[float], b: List[float]) -> List[float]:
@@ -175,11 +178,13 @@ class SwarmGraph:
 
 class FormationDemo:
     def __init__(self, n_agents: int = 3, n_steps: int = 20):
+
         self.n_agents = n_agents
         self.n_steps = n_steps
         self.spacing = 2.0
         self.rel_pos = []
         for i in range(n_agents):
+
             angle = 2 * math.pi * i / n_agents
             self.rel_pos.append([math.cos(angle) * self.spacing, math.sin(angle) * self.spacing])
         self.centroid_path = [[i * 0.4, 0.0] for i in range(n_steps)]
@@ -207,10 +212,12 @@ class FormationDemo:
             agents = []
             for _ in range(self.n_agents):
                 agents.append([next(it), next(it)])
+
             X.append(agents)
         return X
 
     def cost_grad(self,x):
+
         X = self.unpack(x)
         f = 0.0
         g = [[[0.0, 0.0] for _ in range(self.n_agents)] for _ in range(self.n_steps)]
@@ -323,6 +330,7 @@ class FormationDemo:
 
         draw_step(0)
         root.mainloop()
+
 
 if __name__=='__main__':
     demo=FormationDemo(n_agents=3,n_steps=30)
