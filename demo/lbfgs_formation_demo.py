@@ -1,6 +1,11 @@
 import math
-import random
+
 import time
+try:
+    import tkinter as tk
+except Exception as e:  # pragma: no cover - tkinter may be unavailable
+    tk = None
+
 
 class LBFGS:
     def __init__(self, func, grad, m=5, max_iter=100, tol=1e-5):
@@ -165,26 +170,45 @@ class FormationDemo:
         self.X=self.unpack(x_opt)
         print('final cost',fv)
 
-    def show(self):
-        X=self.X
-        width=60;height=20
-        cx,cy=self.obstacle['center'];radius=self.obstacle['radius']
-        for t in range(self.n_steps):
-            grid=[['.' for _ in range(width)] for _ in range(height)]
-            for y in range(height):
-                for x in range(width):
-                    dx=x/5.0-cx;dy=(height-y)/5.0-cy
-                    if math.hypot(dx,dy)<=radius:
-                        grid[y][x]='#'
-            for idx,p in enumerate(X[t]):
-                x=int(p[0]*5)
-                y=height-int(p[1]*5)
-                if 0<=x<width and 0<=y<height:
-                    grid[y][x]=str(idx)
-            print('\x1b[2J\x1b[H')
-            for row in grid:
-                print(''.join(row))
-            time.sleep(0.2)
+
+    def show(self, dt=0.1):
+        if tk is None:
+            raise RuntimeError('Tkinter is not available in this environment')
+
+        X = self.X
+        cx, cy = self.obstacle['center']
+        radius = self.obstacle['radius']
+
+        scale = 50
+        margin = 50
+        width = int((max(p[0] for p in self.centroid_path)+3) * scale + 2 * margin)
+        height = int((max(abs(p[1]) for p in self.centroid_path)+3) * scale + 2 * margin)
+
+        root = tk.Tk()
+        canvas = tk.Canvas(root, width=width, height=height, bg='white')
+        canvas.pack()
+        canvas.create_oval(
+            cx * scale + margin - radius * scale,
+            height - (cy * scale + margin) - radius * scale,
+            cx * scale + margin + radius * scale,
+            height - (cy * scale + margin) + radius * scale,
+            fill='red', outline='')
+
+        agents = [canvas.create_oval(0, 0, 0, 0, fill='blue') for _ in range(self.n_agents)]
+
+        def draw(frame):
+            if frame >= self.n_steps:
+                root.destroy()
+                return
+            for idx, pos in enumerate(X[frame]):
+                x = pos[0] * scale + margin
+                y = height - (pos[1] * scale + margin)
+                canvas.coords(agents[idx], x-5, y-5, x+5, y+5)
+            root.after(int(dt * 1000), lambda: draw(frame + 1))
+
+        draw(0)
+        root.mainloop()
+
 
 if __name__=='__main__':
     demo=FormationDemo(n_agents=3,n_steps=30)
