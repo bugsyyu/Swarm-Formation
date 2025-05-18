@@ -1,9 +1,11 @@
 import math
+
 import time
 try:
     import tkinter as tk
 except Exception as e:  # pragma: no cover - tkinter may be unavailable
     tk = None
+
 
 class LBFGS:
     def __init__(self, func, grad, m=5, max_iter=100, tol=1e-5):
@@ -168,6 +170,7 @@ class FormationDemo:
         self.X=self.unpack(x_opt)
         print('final cost',fv)
 
+
     def show(self, dt=0.1):
         if tk is None:
             raise RuntimeError('Tkinter is not available in this environment')
@@ -205,6 +208,7 @@ class FormationDemo:
 
         draw(0)
         root.mainloop()
+
 
 if __name__=='__main__':
     demo=FormationDemo(n_agents=3,n_steps=30)
